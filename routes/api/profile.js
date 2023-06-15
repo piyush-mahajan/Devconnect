@@ -28,7 +28,7 @@ router.get("/me", async (req, res) => {
 // @route   GET api/users/:id
 // @desc    Get profile by user ID
 // @access  Public
-router.get("/:id", async (req, res) => {
+router.get("user/:id", async (req, res) => {
   try {
     const profile = await Profile.findOne({
       user: req.params.id,
@@ -43,6 +43,7 @@ router.get("/:id", async (req, res) => {
     res.status(500).send("Server Error");
   }
 });
+
 // @route      POST api/profile
 // @desc       Create or update user profile
 // @access     Private
@@ -127,4 +128,87 @@ router.post(
   }
 );
 
+// @route      GET api/profile
+// @desc       get all profiles
+// @access     Public
+router.get("/", async (req, res) => {
+  try {
+    const profiles = await Profile.find().populate("user", [
+      "name",
+      "avtar",
+      "email",
+    ]);
+    res.json(profiles);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("server error bhai");
+  }
+});
+// @route      Delete api/profile
+// @desc       delete profile,user and posts
+// @access     Private
+router.delete("/", auth, async (req, res) => {
+  try {
+    // @todo - remove users posts
+    //remove the post from db
+
+    // remove profile
+    await Profile.findOneAndRemove({ user: req.user.id });
+    // remove user
+    await User.findByIdAndRemove(req.user.id);
+    res.json({ msg: "user deleted" });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("server error bhai");
+  }
+});
+// @route      PUT api/profile/experiance
+// @desc       add profile experiance
+// @access     Private
+router.put(
+  "/experiance",
+  [
+    auth,
+    [
+      check("title", "title is required").not().isEmpty(),
+      check("company", "company is required").not().isEmpty(),
+      check("from", "from date is required").not().isEmpty(),
+    ],
+  ],
+  async (req, res) => {
+    // check for errors
+    const errors = validationResult(req);
+    console.log(errors);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    // destructure the request
+    const { title, company, location, from, to, current, description } =
+      req.body;
+    // create new object with the data that the user submits
+    const newExp = {
+      title,
+      company,
+      location,
+
+      from,
+      to,
+      current,
+      description,
+    };
+    // update the database
+    try {
+      const profile = await Profile.findOne({ user: req.user.id });
+      // unshift is like push but it pushes the new item to the beginning of the array
+      profile.experience.unshift(newExp);
+      await profile.save();
+      res.json(profile);
+    } catch (err) {
+      // if there is an error, log it and send a 500 error to the client
+      console.error(err.message);
+      res.status(500).send("server error bhai");
+    }
+  }
+);
+// @route      DELETE api/profile/experiance/:exp_id
 module.exports = router;
