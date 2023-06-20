@@ -1,25 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
-
-function App() {
+import "./App.css";
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Landing from "./components/layouts/Landing";
+import Navbar from "./components/layouts/Navbar";
+// import { BrowserRouter as Router, Route } from 'react-router-dom';
+// import Navbar from "./components/layouts/Navbar";
+// import Landing from "./components/layouts/Landing";
+import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
+// import Alert from "./components/layouts/Alert";
+// import Dashboard from "./components/dashboard/Dashboard";
+// import CreateProfile from "./components/profile-forms/CreateProfile";
+// import EditProfile from "./components/profile-forms/EditProfile";
+// import AddExperience from "./components/profile-forms/AddExperience";
+// import AddEducation from "./components/profile-forms/AddEducation";
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Navbar />
+      <Routes>
+        {/* <h1>piyush mahajan</h1> */}
+        <Route exact path="/" Component={Landing} />
+      </Routes>
+      <section className="container">
+        <Routes>
+          <Route exact path="/register" Component={Register} />
+          <Route exact path="/login" Component={Login} />{" "}
+        </Routes>
+      </section>
+    </Router>
   );
-}
+};
 
 export default App;
